@@ -1,1 +1,1 @@
-# Snake-Game
+This is the Snake Game Project build using Java.
