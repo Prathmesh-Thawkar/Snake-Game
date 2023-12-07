@@ -1,0 +1,183 @@
+Exp 5:
+
+Code 1: 
+h = commsrc.pn('Shift',0);
+set(h,'NumBitsOut',10);
+generate(h)
+
+Code 2:
+n = 0:15;
+x = 0.84.^n;
+y = circshift(x,5);
+[c,lags] = xcorr(x,y);
+stem(lags,c)
+___________________#####___________
+
+Exp 6:
+
+clear;
+clc;
+b = input('Enter the Bit stream \n '); %b = [0 1 0 1 1 1 0];
+n = length(b);
+t = 0:.01:n;
+x = 1:1:(n+2)*100;
+for i = 1:n
+if (b(i) == 0)
+b_p(i) = -1;
+else
+b_p(i) = 1;
+end
+for j = i:.1:i+1
+bw(x(i*100:(i+1)*100)) = b_p(i);
+if (mod(i,2) == 0)
+bow(x(i*100:(i+1)*100)) = b_p(i);
+bow(x((i+1)*100:(i+2)*100)) = b_p(i);
+else
+bew(x(i*100:(i+1)*100)) = b_p(i);
+bew(x((i+1)*100:(i+2)*100)) = b_p(i);
+end
+if (mod(n,2)~= 0)
+bow(x(n*100:(n+1)*100)) = -1;
+bow(x((n+1)*100:(n+2)*100)) = -1;
+end
+end
+end
+bw = bw(100:end);
+bew = bew(100:(n+1)*100);
+bow = bow(200:(n+2)*100);
+wot = 2*pi*t*(5/4);
+Wt = 2*pi*t/(4*1);
+st = bow.*sin(wot+(bew.*bow).*Wt);
+subplot(4,1,1)
+plot(t,bw)
+grid on ; axis([0 n -2 +2])
+subplot(4,1,2)
+plot(t,bow)
+grid on ; axis([0 n -2 +2])
+subplot(4,1,3)
+plot(t,bew)
+grid on ; axis([0 n -2 +2])
+subplot(4,1,4)
+plot(t,st)
+grid on ; axis([0 n -2 +2])
+Fs=5/4; %figure
+%periodogram(st)
+S = fft(st,65);
+PSS = S.* conj(S) / 65;
+f = 1000*(-16:16)/65;
+figure
+plot(f,PSS(1:33))
+
+__________________#####_____________
+
+Exp 7: 
+
+
+% MATLAB Code for GMSK Modulation 
+
+pi = 3.141592;
+sqrpi = pi*pi;
+
+GMSK = [];
+GBPSK = [];
+GQPSK = [];
+xaxis = [];
+
+for i=1:1000
+    f = i/100;
+    % f is frequency normalized to to 1/(bit duration)
+    xaxis = [xaxis, f ];
+   ymsk = (16/sqrpi) * (cos(6.2832 * f))*2/ ((1- 16) * f)*2;
+   GMSK = [GMSK, 10 * log10(ymsk)];
+
+      ybpsk = 2 * (sin(pi*f)/(pi*f))*2;
+    GBPSK = [GBPSK, 10 * log10(ybpsk)];
+    yqpsk = 2 * (sin(2*pi* f)/(2*pi*f))*2;
+    GQPSK = [GQPSK, 10 * log10(yqpsk)];
+
+end
+plot(xaxis,GMSK, 'y-',xaxis,GBPSK, 'c.',xaxis,GQPSK, 'c-.');
+
+axis([0 10 -60 10]);
+ylabel('Spectral Power Level in dB');
+xlabel('Frequency Offset / Bit Rate');
+
+__________________#####_______________
+
+Exp 8 :
+
+% MATLAB Code:
+cfg = gsmUplinkConfig;
+cfg.Attenuation([0 3 7] +1) = [2 6 10]
+x = gsmFrame(cfg);
+wfInfo = gsmInfo(cfg);
+Rs = wfInfo.SampleRate;
+t = (0:length(x) - 1)/Rs*1e3;
+plot(t, 20*log10(abs(x)))
+axis([0 5 -20 5])
+grid on
+title('GSM Uplink TDMA Frame Power')
+xlabel('Time (ms)')
+ylabel('Power (dB)')
+
+_________________#####_________________
+
+Exp 9:
+
+(9-1). NormalBurstDescription
+
+Code: 
+
+function d = normalBurstDescription()
+BitNumber = ["0 - 2";"3 - 60";"61 - 86";...
+    "87 - 144";"145 - 147";"148 - 156"];
+LengthOfField = {3;58;26;58;3;8.25};
+ContentsOfField = [...
+    "tail bits";...
+    "encrypted bits";...
+    "training sequence bits";...
+    "encrypted bits";...
+    "tail bits";...
+    "guard period (bits)"...
+    ];
+d = table(BitNumber,LengthOfField,ContentsOfField);
+end
+
+ ________________&&&&&&&&&_______
+
+(9-2). frequencyCorrectionBurstDescription
+
+function d = frequencyCorrectionBurstDescription()
+BitNumber = ["0 - 2";"3 - 144";"145 - 147";"148 - 156"];
+LengthOfField = {3;142;3;8.25};
+ContentsOfField = [...
+    "tail bits";...
+    "fixed bits";...
+    "tail bits";...
+    "guard period (bits)"...
+    ];
+d = table(BitNumber,LengthOfField,ContentsOfField);
+end
+
+______________&&&&&&&&__________
+
+
+(9-3). synchronizationBurstDescription
+
+
+function d = synchronizationBurstDescription()
+BitNumber = ["0 - 2";"3 - 41";"42 - 105";...
+    "106 - 144";"145 - 147";"148 - 156"];
+LengthOfField = {3;39;64;39;3;8.25};
+ContentsOfField = [...
+    "tail bits";...
+    "encrypted bits";...
+    "extended training sequence bits";...
+    "encrypted bits";...
+    "tail bits";...
+    "guard period (bits)"...
+    ];
+d = table(BitNumber,LengthOfField,ContentsOfField);
+end
+
+___________________######________
